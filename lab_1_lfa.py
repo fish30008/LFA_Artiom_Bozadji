@@ -1,34 +1,3 @@
-'''public class Grammar
-{
-    public Grammar(some params...)
-    public String generateString()
-    public FiniteAutomaton toFiniteAutomaton()
-
-
-public class FiniteAutomaton
-{
-    public FiniteAutomaton(constructor params...)
-
-
-    public boolean stringBelongToLanguage(final String inputString)
-
-}'''
-
-
-'''
-Variant 3:
-VN={S, D, R}, 
-VT={a, b, c, d, f},
-P={ 
-    S → aS
-    S → bD
-    S → fR
-    D → cD
-    D → dR
-    R → bR
-    R → f
-    D → d
-}'''
 import random
 class Grammar:
     def __init__(self):
@@ -44,7 +13,7 @@ class Grammar:
         current = self.start
         result = []
         while current in self.Vn:
-            production = random.choice(self.P[current])
+            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
             result.append(production)
             current = production[-1]
         return ''.join(result)
@@ -56,17 +25,17 @@ class Grammar:
 
 
 class FiniteAutomaton:
-    def __init__(self, transitions, start_state):
+    def __init__(self, transitions, start):
         self.transitions = transitions
-        self.start_state = start_state
+        self.start = start
 
     def stringBelongToLanguage(self, input_string):
-        current_state = self.start_state
+        current = self.start
         for char in input_string:
             found_transition = False
-            for transition in self.transitions.get(current_state, []):
+            for transition in self.transitions.get(current, []):
                 if transition[0] == char:
-                    current_state = transition[1]
+                    current = transition[1]
                     found_transition = True
                     break
             if not found_transition:
@@ -82,7 +51,7 @@ for _ in range(5):
 fa = grammar.toFiniteAutomaton()
 print("\nFinite Automaton string checks:")
 
-for text in grammar.P.values():
-    print(fa.stringBelongToLanguage(text))
+text = 'abc'
+print(fa.stringBelongToLanguage(text))
 
 
