@@ -9,15 +9,32 @@ class Grammar:
             'R': ['bR', 'f']}
         self.start = 'S'
 
+    # def generateString(self):
+    #     current = self.start
+    #     result = []
+    #     while current in self.Vn:
+    #         production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
+    #         if result[i].__contains__(self.Vn):
+    #             current = production[-1]
+    #             continue
+    #         result.append(production)
+    #         current = production[-1]
+    #     return ''.join(result)
+
     def generateString(self):
         current = self.start
-        result = []
-        while current in self.Vn:
-            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
-            result.append(production)
-            current = production[-1]
-        return ''.join(result)
+        # result = []
 
+        while any(symbol in self.Vn for symbol in current):
+            new_string = ""
+            for symbol in current:
+                if symbol in self.Vn:
+                    new_string += random.choice(self.P[symbol])
+                else:
+                    new_string += symbol
+            current = new_string  # Update current string
+
+        return current
 
 
     def toFiniteAutomaton(self):
@@ -49,6 +66,7 @@ for _ in range(5):
     print(grammar.generateString())
 
 fa = grammar.toFiniteAutomaton()
+print(str(fa.start) + '<- start----transitions ->' + str(fa.transitions))
 print("\nFinite Automaton string checks:")
 
 text = 'abc'
