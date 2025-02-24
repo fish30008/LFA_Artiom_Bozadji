@@ -74,76 +74,25 @@ D → d
 }'''
 ```
 
-### Code:
-```
-import random
-class Grammar:
-    def __init__(self):
-        self.Vn = ['S', 'D', 'R']
-        self.Vt = ['a', 'b', 'c', 'd', 'f']  # Terminal symbols
-        self.P = {
-            'S': ['aS', 'bD', 'fR'],
-            'D': ['cD', 'dR', 'd'],
-            'R': ['bR', 'f']}
-        self.start = 'S'
-
-    def generateString(self):
-        current = self.start
-        result = []
-        while current in self.Vn:
-            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
-            result.append(production)
-            current = production[-1]
-        return ''.join(result)
-
-
-
-    def toFiniteAutomaton(self):
-            return FiniteAutomaton(self.P, self.start)
-
-
-class FiniteAutomaton:
-    def __init__(self, transitions, start):
-        self.transitions = transitions
-        self.start = start
-
-    def stringBelongToLanguage(self, input_string):
-        current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-        return True
-
-
-grammar = Grammar()
-print("Generated strings:")
-for _ in range(5):
-    print(grammar.generateString())
-
-fa = grammar.toFiniteAutomaton()
-print("\nFinite Automaton string checks:")
-
-text = 'abc'
-print(fa.stringBelongToLanguage(text))
-
-```
-
 
 ## Main logic of implementation: 
 ### production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
-### it takes the last word from prodcution (current = production[-1])
-### example of output (Generated strings:
-aSfRf
-fRf
-aSaSaSfRf
-bDcDcDdRbRf
-bDd)
+### the main logic of the generating a string is to take the symboll and verifies if it's from Vn, if yes it selects new_string from production again: 
+```
+                if symbol in self.Vn:
+                    new_string += random.choice(self.P[symbol])
+                else:
+                    new_string += symbol
+```
+### example of output (Generated strings):
+```
+fbf
+aaafbf
+bd
+abcd
+ff
+```
+
 ### with string_verification we check if the transition matches the current character and after updait current, and check again.
 ```
 current = self.start
@@ -156,6 +105,13 @@ current = self.start
                     break
             if not found_transition:
                 return False
+```
+### example of running:
+
+```
+text = 'abc'
+
+True
 ```
 
 
