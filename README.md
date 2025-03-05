@@ -76,8 +76,8 @@ D → d
 
 
 ## Main logic of implementation: 
-### production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
-### the main logic of the generating a string is to take the symboll and verifies if it's from Vn, if yes it selects new_string from production again: 
+Production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
+the main logic of the generating a string is to take the symboll and verifies if it's from Vn, if yes it selects new_string from production again: 
 ```
                 if symbol in self.Vn:
                     new_string += random.choice(self.P[symbol])
@@ -93,7 +93,7 @@ abcd
 ff
 ```
 
-### with string_verification we check if the transition matches the current character and after updait current, and check again.
+### The string_belongs_to_language method verifies if a given string belongs to the language defined by the finite automaton by iterating over each character of the string, checking for matching transitions from the current state, and updating the state accordingly. If any character does not have a valid transition, the method returns False; otherwise, it returns True after successfully processing all characters.
 ```
 current = self.start
         for char in input_string:
@@ -106,7 +106,7 @@ current = self.start
             if not found_transition:
                 return False
 ```
-### example of running:
+### Example of output:
 
 ```
 text = 'abc'
