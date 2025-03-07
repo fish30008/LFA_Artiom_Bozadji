@@ -11,14 +11,14 @@ It consists of:
 
 A finite set of states ( Q ).
 
-A finite alphabet Σ\Sigma\Sigma of input symbols.
+A finite alphabet Σ of input symbols.
 
 A transition function δ:Q×(Σ∪{ε})→2Q is allowing multiple or no next states 
 (including ε-transitions, which occur without input).
 
 An initial state q0∈Qq_0 \in Qq_0 \in Q.
 
-A set of final (accepting) states F⊆QF \subseteq QF \subseteq Q.
+A set of final (accepting) states F⊆QF subseteq Q.
 
 NFAs are "nondeterministic" because, for a given state and input, they can transition to multiple states (or none), and ε
 -transitions allow spontaneous moves. This flexibility makes NFAs powerful for modeling certain languages but harder to simulate directly.
@@ -29,13 +29,13 @@ Deterministic Finite Automaton (DFA)
 A DFA is a restricted version of an NFA with deterministic behavior. It is defined by:
 A finite set of states ( Q ).
 
-A finite alphabet Σ\Sigma\Sigma.
+A finite alphabet Σ.
 
 A transition function δ:Q×Σ→Q, which maps each state and symbol to exactly one next state (no ε-transitions or ambiguity).
 
 An initial state q0∈Qq_0 \in Qq_0 \in Q.
 
-A set of final states F⊆QF \subseteq QF \subseteq Q.
+A set of final states F⊆QF subseteq Q.
 
 DFAs are deterministic: at every step, the next state is uniquely determined by the current state and input. While less expressive in definition than NFAs, they recognize the same class of languages (regular languages) and are easier to implement in practice.
 
@@ -43,20 +43,16 @@ DFAs are deterministic: at every step, the next state is uniquely determined by 
 
 NFA to DFA Conversion
 The conversion from an NFA to a DFA uses the subset construction method (also called the powerset construction), proving that every language accepted by an NFA is also accepted by some DFA (i.e., they are equivalent in power). The process works as follows:
-States: Each DFA state corresponds to a subset of NFA states (QD⊆2QNQ_D \subseteq 2^{Q_N}Q_D \subseteq 2^{Q_N}).
+States: Each DFA state corresponds to a subset of NFA states (QD⊆2^{Q_N}).
 
-Alphabet: Same as the NFA (Σ\Sigma\Sigma).
+Alphabet: Same as the NFA (Σ).
 
-Initial State: The DFA starts with the set containing the NFA’s initial state ({q0}\{q_0\}\{q_0\}), adjusted 
-for ε\varepsilon\varepsilon-closures if present (not in your case).
+Initial State: The DFA starts with the set containing the NFA’s initial state q0, adjusted 
+for ε closures if present (not in our case).
 
-Transition Function: For a DFA state ( S ) and symbol ( a ), δD(S,a)=⋃q∈e(q,a)\delta_D(S, a) = \bigcup_{q \in S} \delta_N(q, a)\delta_D(S, a) = \bigcup_{q \in S} \delta_N(q, a), the union of all possible NFA transitions from states in ( S ) on ( a ).
+Final States: DFA states containing at least one NFA final state.
 
-Final States: DFA states containing at least one NFA final state (S∩FN≠∅S \cap F_N \neq \emptysetS \cap F_N \neq \emptyset).
-
-The algorithm explores all reachable subsets using a worklist (e.g., queue), starting from {q0}\{q_0\}\{q_0\}
-, and computes transitions until no new states are generated. Undefined NFA transitions 
-(δN(q,a)=∅\delta_N(q, a) = \emptyset\delta_N(q, a) = \emptyset) lead to an empty set state (∅\emptyset\emptyset) in the DFA, which acts as a trap state.
+The algorithm explores all reachable subsets using a worklist.
 
 Automata theory is the study of abstract
 computational devices (abstract state
