@@ -1,40 +1,62 @@
 **LFA_Artiom_Bozadji
 Formal Languages and Finite Automata**
 
-# Report for Laboratory Work '#'1: Regular Grammars & Finite Automata
+# Report for Laboratory Work '#'2: Determinism in Finite Automata. Conversion from NDFA 2 DFA. Chomsky Hierarchy.
 ### Always Variant 3
 
 ### Short theory:
-*Alphabet Definitions
-An alphabet is a finite, nonempty set of
-symbols. By convention we use the symbol
- for an alphabet. String (or sometimes a word)
-– A finite sequence of symbols chosen from an alphabet.
-For example, 010101010 is a string chosen from the binary
-alphabet, as is the string 0000 or 1111.
-• The empty string  (or “epsilon”) is the string with
-zero occurrences of symbols. This string is denoted ε
-and may be chosen from any alphabet.
-Grammar Definitions
-• A grammar G is an ordered quadruple
-G=(VN, VT, P, S) where:
-VN - is a finite set of non-terminal symbols;
-VT - is a finite set of terminal symbols;
-VN != VT 
- S is a start symbol;
- P – is a finite set of productions of rules.*
- 
- Chomsky Classification
-*1. Type 0. Recursively enumerable languages.
-Only restriction on rules: left-hand side cannot be the empty
-string 
-Type 1. Context-Sensitive languages - Context-Sensitive (CS)
-rules.
-3. Type 2. Context-Free languages - Context-Free (CF) rules
-4. Type 3. Regular languages - Non-Context-Free (CF) rules
-0 ⊇ 1 ⊇ 2 ⊇ 3
-a ⊇ b meaning a properly includes b (a is a superset of b),
-i.e. b is a proper subset of a or b is in a*
+Nondeterministic Finite Automaton (NFA)
+An NFA is a theoretical model of computation used in formal language theory. 
+It consists of: 
+
+A finite set of states ( Q ).
+
+A finite alphabet Σ\Sigma\Sigma of input symbols.
+
+A transition function δ:Q×(Σ∪{ε})→2Q is allowing multiple or no next states 
+(including ε-transitions, which occur without input).
+
+An initial state q0∈Qq_0 \in Qq_0 \in Q.
+
+A set of final (accepting) states F⊆QF \subseteq QF \subseteq Q.
+
+NFAs are "nondeterministic" because, for a given state and input, they can transition to multiple states (or none), and ε
+-transitions allow spontaneous moves. This flexibility makes NFAs powerful for modeling certain languages but harder to simulate directly.
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Deterministic Finite Automaton (DFA)
+A DFA is a restricted version of an NFA with deterministic behavior. It is defined by:
+A finite set of states ( Q ).
+
+A finite alphabet Σ\Sigma\Sigma.
+
+A transition function δ:Q×Σ→Q, which maps each state and symbol to exactly one next state (no ε-transitions or ambiguity).
+
+An initial state q0∈Qq_0 \in Qq_0 \in Q.
+
+A set of final states F⊆QF \subseteq QF \subseteq Q.
+
+DFAs are deterministic: at every step, the next state is uniquely determined by the current state and input. While less expressive in definition than NFAs, they recognize the same class of languages (regular languages) and are easier to implement in practice.
+
+
+
+NFA to DFA Conversion
+The conversion from an NFA to a DFA uses the subset construction method (also called the powerset construction), proving that every language accepted by an NFA is also accepted by some DFA (i.e., they are equivalent in power). The process works as follows:
+States: Each DFA state corresponds to a subset of NFA states (QD⊆2QNQ_D \subseteq 2^{Q_N}Q_D \subseteq 2^{Q_N}).
+
+Alphabet: Same as the NFA (Σ\Sigma\Sigma).
+
+Initial State: The DFA starts with the set containing the NFA’s initial state ({q0}\{q_0\}\{q_0\}), adjusted 
+for ε\varepsilon\varepsilon-closures if present (not in your case).
+
+Transition Function: For a DFA state ( S ) and symbol ( a ), δD(S,a)=⋃q∈e(q,a)\delta_D(S, a) = \bigcup_{q \in S} \delta_N(q, a)\delta_D(S, a) = \bigcup_{q \in S} \delta_N(q, a), the union of all possible NFA transitions from states in ( S ) on ( a ).
+
+Final States: DFA states containing at least one NFA final state (S∩FN≠∅S \cap F_N \neq \emptysetS \cap F_N \neq \emptyset).
+
+The algorithm explores all reachable subsets using a worklist (e.g., queue), starting from {q0}\{q_0\}\{q_0\}
+, and computes transitions until no new states are generated. Undefined NFA transitions 
+(δN(q,a)=∅\delta_N(q, a) = \emptyset\delta_N(q, a) = \emptyset) lead to an empty set state (∅\emptyset\emptyset) in the DFA, which acts as a trap state.
 
 Automata theory is the study of abstract
 computational devices (abstract state
@@ -47,118 +69,71 @@ number of states”
 
 ### Code structure
 ```
-public class Grammar
-{
-public Grammar(some params...)
-public String generateString()
-public FiniteAutomaton toFiniteAutomaton()
-public class FiniteAutomaton
-{
-public FiniteAutomaton(constructor params...)
-public boolean stringBelongToLanguage(final String inputString)
-}
+
+Class Grammar
+Class NDFA
+Class DFA
+for all defined method display
+main logic:
+    def to_regular_grammar(self):
+    def is_dfa(self):
+    def to_dfa(self):
 ```
 Variant 3:
 ```
-VN={S, D, R},
-VT={a, b, c, d, f},
-P={
-S → aS
-S → bD
-S → fR
-D → cD
-D → dR
-R → bR
-R → f
-D → d
-}'''
+Variant 3
+Q = {q0,q1,q2,q3,q4},
+∑ = {a,b},
+F = {q4},
+δ(q0,a) = q1,
+δ(q1,b) = q1,
+δ(q1,a) = q2,
+δ(q2,b) = q2,
+δ(q2,b) = q3,
+δ(q3,b) = q4, 
+δ(q3,a) = q1.
 ```
 
-### Code:
-```
-import random
-class Grammar:
-    def __init__(self):
-        self.Vn = ['S', 'D', 'R']
-        self.Vt = ['a', 'b', 'c', 'd', 'f']  # Terminal symbols
-        self.P = {
-            'S': ['aS', 'bD', 'fR'],
-            'D': ['cD', 'dR', 'd'],
-            'R': ['bR', 'f']}
-        self.start = 'S'
+### a. Implement conversion of a finite automaton to a regular grammar:
 
-    def generateString(self):
-        current = self.start
-        result = []
-        while current in self.Vn:
-            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
-            result.append(production)
-            current = production[-1]
-        return ''.join(result)
+Method to_regular_grammar:
+Creates a Grammar object.
 
+Sets VN=Q VT=Σ and start=q0.
 
+For each state (q):
+For each symbol (a) and next state p∈δ(q,a) adds production q→aq .
+If (q) is final, adds q→εq.
+Returns the constructed grammar.
 
-    def toFiniteAutomaton(self):
-            return FiniteAutomaton(self.P, self.start)
+### b. Determine whether your FA is deterministic or non-deterministic.
 
+We disscussed about this in short theory part:
+A DFA requires that for every state ( q ) and symbol ( a ), δ(q,a) =1 (exactly one next state).
+No ε-transitions are allowed (none exist here).
+Check each transition:
+  q1 -> aq2 | bq1
+  q2 -> bq3 | bq2
+  q3 -> aq1 | bq4).
+Since some transitions violate the condition our FA is non-deterministic
 
-class FiniteAutomaton:
-    def __init__(self, transitions, start):
-        self.transitions = transitions
-        self.start = start
+### c. Implement some functionality that would convert an NDFA to a DFA.
 
-    def stringBelongToLanguage(self, input_string):
-        current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-        return True
+Step 1: Convert the given NFA to its equivalent transition table
+To convert the NFA to its equivalent transition table, we need to list all the states, input symbols, and the transition rules. The transition rules are represented in the form of a DICTIONARY, where the KEYS represent the current state, the VALUES represent the input symbol, and the cells represent the next state. 
 
+Step 2: Create the DFA’s start state
+The DFA’s start state is the set of all possible starting states in the NFA. This set is called the “epsilon closure” of the NFA’s start state. The epsilon closure is the set of all states that can be reached from the start state by following epsilon (?) transitions.
 
-grammar = Grammar()
-print("Generated strings:")
-for _ in range(5):
-    print(grammar.generateString())
+Step 3: Create the DFA’s transition table
+The DFA’s transition table is similar to the NFA’s transition table, but instead of individual states, the rows and columns represent sets of states. For each input symbol, the corresponding cell in the transition table contains the epsilon closure of the set of states obtained by following the transition rules in the NFA’s transition table.
 
-fa = grammar.toFiniteAutomaton()
-print("\nFinite Automaton string checks:")
-
-text = 'abc'
-print(fa.stringBelongToLanguage(text))
-
-```
-
-
-## Main logic of implementation: 
-### production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
-### it takes the last word from prodcution (current = production[-1])
-### example of output (Generated strings:
-aSfRf
-fRf
-aSaSaSfRf
-bDcDcDdRbRf
-bDd)
-### with string_verification we check if the transition matches the current character and after updait current, and check again.
-```
-current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-```
-
+Step 4: Create the DFA’s final states
+The DFA’s final states are the sets of states that contain at least one final state from the NFA.
 
 ### Consclusion 
-After implementing this labaratory work i learned how to define grammar in programming language, how to iterate through it to generate a string, how to verify if it's a Finite automata and how to verify if string belong to the language. Key point from work is that the start state is used as the initial reference point and does not change during the execution of the automaton. The current state is updated based on the transitions, but the start state remains unchanged. And also if any character does not have a valid transition, then it doesn't belong to our defined language.
+This work successfully explored the transformation and analysis of a given nondeterministic finite automaton (NFA) through a structured Python implementation. Second, a determinism check confirmed the NFA’s non-deterministic nature due to multiple transitions and undefined moves, distinguishing it from a DFA’s strict single-transition requirement. Third, the subset construction method transformed the NFA into an equivalent DFA, resolving non-determinism by representing states as subsets ensuring a deterministic model that accepts the same regular language.
+Theoretically, this process underscores the equivalence of NFAs and DFAs in recognizing regular languages, with the conversion bridging their expressive and operational differences. Practically, the class-based implementation in Python—integrating NDFA, Grammar, and DFA—demonstrates a robust, reusable framework for automata manipulation. This work not only validates the theoretical foundations but also provides a functional toolset for further exploration of formal language concepts, highlighting the power and practicality of automata theory in computational modeling.
+
+
 
