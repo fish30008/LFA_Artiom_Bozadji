@@ -1,164 +1,84 @@
-**LFA_Artiom_Bozadji
-Formal Languages and Finite Automata**
+# SQL Lexer Implementation Report
+### Overview
+This report analyzes an implementation of an SQL lexer that tokenizes SQL queries. The lexer converts raw SQL text into a sequence of tokens that can be processed by a parser in a database management system.
 
-# Report for Laboratory Work '#'1: Regular Grammars & Finite Automata
-### Always Variant 3
+## Core Components
+### Token Class
+The Token class defines constants for various SQL tokens:
 
-### Short theory:
-*Alphabet Definitions
-An alphabet is a finite, nonempty set of
-symbols. By convention we use the symbol
- for an alphabet. String (or sometimes a word)
-– A finite sequence of symbols chosen from an alphabet.
-For example, 010101010 is a string chosen from the binary
-alphabet, as is the string 0000 or 1111.
-• The empty string  (or “epsilon”) is the string with
-zero occurrences of symbols. This string is denoted ε
-and may be chosen from any alphabet.
-Grammar Definitions
-• A grammar G is an ordered quadruple
-G=(VN, VT, P, S) where:
-VN - is a finite set of non-terminal symbols;
-VT - is a finite set of terminal symbols;
-VN != VT 
- S is a start symbol;
- P – is a finite set of productions of rules.*
- 
- Chomsky Classification
-*1. Type 0. Recursively enumerable languages.
-Only restriction on rules: left-hand side cannot be the empty
-string 
-Type 1. Context-Sensitive languages - Context-Sensitive (CS)
-rules.
-3. Type 2. Context-Free languages - Context-Free (CF) rules
-4. Type 3. Regular languages - Non-Context-Free (CF) rules
-0 ⊇ 1 ⊇ 2 ⊇ 3
-a ⊇ b meaning a properly includes b (a is a superset of b),
-i.e. b is a proper subset of a or b is in a*
+- Special tokens: EOF (End of File)
+- SQL Keywords: SELECT, FROM, WHERE, ORDER BY, GROUP BY, etc.
+- Types: Identifiers, numbers, and strings
+- Operators: Mathematical and comparison operators
+Each token type is assigned a unique negative integer value for identification.
 
-Automata theory is the study of abstract
-computational devices (abstract state
-machine).
-• Abstract machine are (simplified) models of
-real computations .Automata – plural of “automaton”.
-• Finite state automata then a “robot composed of a finite
-number of states”
-– Informally, a finite list of states with transitions between the states.
+### SQLLexer Class
+The SQL Lexer class handles the conversion of an SQL query string into a sequence of tokens.
 
-### Code structure
+### Key Attributes:
+- input : The SQL query string to be tokenized
+- keywords : Dictionary mapping SQL keywords to their token types
+- operators : List of valid SQL operators
+- special_chars : Characters that should be treated as separate tokens
+
+
+Methods: 
+
+1. preprocess_for_split():
+Prepares the SQL string for tokenization
+Handles string literals by preserving spaces within quotes
+Adds spaces around special characters for proper splitting
+Handles multi-character operators like <=,>=, and !=
+2. is_number():
+Utility method to check if a token represents a numeric value
+
+3. tokenize():
+
+- Main tokenization method
+- Preprocesses the SQL query
+- Removes SQL comments (lines starting with --)
+- Splits the query into raw tokens
+- Processes each token to determine its type and value
+- Returns a list of (token_type, token_value) tuples
+
+4. Utilities
+The implementation includes a 
+token_name()
+ function that converts token type constants to readable string names for debugging purposes.
+
+Algorithm
+The tokenization process follows these steps:
+
+- Preprocessing: Handle special characters and string literals
+- Comment Removal: Strip SQL comments from the query
+- Splitting: Divide the preprocessed string into raw tokens
+- Token Classification: For each raw token:
+  - Identify string literals (text surrounded by quotes)
+  - Identify operators from the predefined list
+  - Identify numeric values
+  - Check for SQL keywords (case-insensitive)
+  - Classify remaining tokens as identifiers
+- Finalization: Add an EOF token to the end of the token list
+### Example Usage
+The code includes a test function that demonstrates how to use the lexer:
 ```
-public class Grammar
-{
-public Grammar(some params...)
-public String generateString()
-public FiniteAutomaton toFiniteAutomaton()
-public class FiniteAutomaton
-{
-public FiniteAutomaton(constructor params...)
-public boolean stringBelongToLanguage(final String inputString)
-}
-```
-Variant 3:
-```
-VN={S, D, R},
-VT={a, b, c, d, f},
-P={
-S → aS
-S → bD
-S → fR
-D → cD
-D → dR
-R → bR
-R → f
-D → d
-}'''
-```
+def test_lexer():
+    sql_query = """
+    SELECT id, first_name, last_name, salary + bonus AS total_compensation
+    FROM employees 
+    """
 
-### Code:
-```
-import random
-class Grammar:
-    def __init__(self):
-        self.Vn = ['S', 'D', 'R']
-        self.Vt = ['a', 'b', 'c', 'd', 'f']  # Terminal symbols
-        self.P = {
-            'S': ['aS', 'bD', 'fR'],
-            'D': ['cD', 'dR', 'd'],
-            'R': ['bR', 'f']}
-        self.start = 'S'
+    lexer = SQLLexer(sql_query)
+    tokens = lexer.tokenize()
 
-    def generateString(self):
-        current = self.start
-        result = []
-        while current in self.Vn:
-            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
-            result.append(production)
-            current = production[-1]
-        return ''.join(result)
-
-
-
-    def toFiniteAutomaton(self):
-            return FiniteAutomaton(self.P, self.start)
-
-
-class FiniteAutomaton:
-    def __init__(self, transitions, start):
-        self.transitions = transitions
-        self.start = start
-
-    def stringBelongToLanguage(self, input_string):
-        current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-        return True
-
-
-grammar = Grammar()
-print("Generated strings:")
-for _ in range(5):
-    print(grammar.generateString())
-
-fa = grammar.toFiniteAutomaton()
-print("\nFinite Automaton string checks:")
-
-text = 'abc'
-print(fa.stringBelongToLanguage(text))
+    for token_type, token_value in tokens:
+        print(f"Token: {token_name(token_type)}, Value: {token_value}")
 
 ```
-
-
-## Main logic of implementation: 
-### production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
-### it takes the last word from prodcution (current = production[-1])
-### example of output (Generated strings:
-aSfRf
-fRf
-aSaSaSfRf
-bDcDcDdRbRf
-bDd)
-### with string_verification we check if the transition matches the current character and after updait current, and check again.
-```
-current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-```
-
-
-### Consclusion 
-After implementing this labaratory work i learned how to define grammar in programming language, how to iterate through it to generate a string, how to verify if it's a Finite automata and how to verify if string belong to the language. Key point from work is that the start state is used as the initial reference point and does not change during the execution of the automaton. The current state is updated based on the transitions, but the start state remains unchanged. And also if any character does not have a valid transition, then it doesn't belong to our defined language.
-
+### Limitations and Potential Improvements
+Complex String Handling: The string literal handling could be improved to better manage escaped quotes
+SQL Dialect Specificity: The lexer supports a subset of SQL keywords and may need expansion for specific SQL dialects
+Error Handling: Limited error reporting for malformed SQL inputs
+Performance: The current implementation is focused on correctness rather than performance optimization
+ ### Conclusion
+This SQL lexer provides a solid foundation for SQL query tokenization. It successfully handles the core aspects of lexical analysis for SQL, including keywords, identifiers, literals, and operators. With some enhancements, it could be incorporated into a complete SQL parsing and execution system.
