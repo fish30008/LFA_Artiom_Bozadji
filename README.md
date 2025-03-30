@@ -1,164 +1,83 @@
-**LFA_Artiom_Bozadji
-Formal Languages and Finite Automata**
+# Report: Dynamic Regular Expression Interpretation and String Generation
 
-# Report for Laboratory Work '#'1: Regular Grammars & Finite Automata
-### Always Variant 3
+## 1. Introduction
+Regular expressions (regex) are widely used for pattern matching and validation tasks in computing. This project focuses on dynamically interpreting given regular expressions and generating valid strings conforming to the specified patterns. The approach involves parsing the regex, constructing an abstract syntax tree (AST), and using it to generate outputs systematically.
 
-### Short theory:
-*Alphabet Definitions
-An alphabet is a finite, nonempty set of
-symbols. By convention we use the symbol
- for an alphabet. String (or sometimes a word)
-– A finite sequence of symbols chosen from an alphabet.
-For example, 010101010 is a string chosen from the binary
-alphabet, as is the string 0000 or 1111.
-• The empty string  (or “epsilon”) is the string with
-zero occurrences of symbols. This string is denoted ε
-and may be chosen from any alphabet.
-Grammar Definitions
-• A grammar G is an ordered quadruple
-G=(VN, VT, P, S) where:
-VN - is a finite set of non-terminal symbols;
-VT - is a finite set of terminal symbols;
-VN != VT 
- S is a start symbol;
- P – is a finite set of productions of rules.*
- 
- Chomsky Classification
-*1. Type 0. Recursively enumerable languages.
-Only restriction on rules: left-hand side cannot be the empty
-string 
-Type 1. Context-Sensitive languages - Context-Sensitive (CS)
-rules.
-3. Type 2. Context-Free languages - Context-Free (CF) rules
-4. Type 3. Regular languages - Non-Context-Free (CF) rules
-0 ⊇ 1 ⊇ 2 ⊇ 3
-a ⊇ b meaning a properly includes b (a is a superset of b),
-i.e. b is a proper subset of a or b is in a*
+## 2. Objectives
+The primary goals of this project are:
+- **Dynamic Interpretation**: Convert a given regex pattern into a structured tree representation.
+- **Valid String Generation**: Produce valid strings following the defined regex rules.
+- **Processing Log**: Track and display the step-by-step parsing and generation process.
+- **Handling Repetitions**: Implement controlled handling of quantifiers (`*`, `+`, `?`, `^N`) to limit excessive repetitions.
 
-Automata theory is the study of abstract
-computational devices (abstract state
-machine).
-• Abstract machine are (simplified) models of
-real computations .Automata – plural of “automaton”.
-• Finite state automata then a “robot composed of a finite
-number of states”
-– Informally, a finite list of states with transitions between the states.
+## 3. Given Regular Expressions
+The project processes the following regex variants:
 
-### Code structure
+1. **Variant 1**: `O(P|Q|R)+2(3|4)`
+2. **Variant 2**: `A*B(C|D|E)F(G|H|I)^2`
+3. **Variant 3**: `J+K(L|M|N)*O?(P|Q)^3`
+
+Each variant consists of a combination of literals, choices (alternation), sequences, and quantifiers.
+
+## 4. Implementation Details
+### 4.1. Regex Parsing and Abstract Syntax Tree (AST)
+The parser converts regex patterns into an AST consisting of the following node types:
+- **LiteralNode**: Represents individual characters (e.g., `O`, `A`, `F`).
+- **SequenceNode**: Represents concatenated elements.
+- **AlternationNode**: Represents choices (e.g., `(P|Q|R)`).
+- **RepetitionNode**: Handles quantifiers such as `*`, `+`, `?`, and `^N`.
+
+### 4.2. Handling Quantifiers
+- `*` (Zero or more repetitions) → Limited to a maximum of **5**.
+- `+` (One or more repetitions) → Limited to a maximum of **5**.
+- `?` (Optional, zero or one occurrence) → Generates either **zero or one occurrence**.
+- `^N` (Exact N repetitions) → Generates **exactly N occurrences**.
+
+### 4.3. String Generation Process
+The tree structure is traversed to generate a valid string:
+1. **LiteralNode**: Outputs the character directly.
+2. **SequenceNode**: Concatenates results from child nodes.
+3. **AlternationNode**: Selects the first option (for deterministic output).
+4. **RepetitionNode**: Generates the required repetitions while following predefined limits.
+
+## 5. Example Outputs
+| Variant | Regex Pattern | Generated String |
+|---------|--------------|------------------|
+| Variant 1 | `O(P|Q|R)+2(3|4)` | `OPP23` |
+| Variant 2 | `A*B(C|D|E)F(G|H|I)^2` | `BBFHH` |
+| Variant 3 | `J+K(L|M|N)*O?(P|Q)^3` | `JJKPPP` |
+
+## 6. Challenges and Solutions
+| Challenge | Solution |
+|-----------|----------|
+| Handling nested groups | Used recursive parsing with a stack-based approach. |
+| Managing repetition limits | Introduced a configurable `MAX_REPETITION` constraint. |
+| Ensuring deterministic output | Always chose the first valid option from alternations. |
+| Parsing `^N` syntax | Implemented explicit digit parsing after `^`. |
+
+## 7. Processing Log Example
+The following is an example of the processing steps:
 ```
-public class Grammar
-{
-public Grammar(some params...)
-public String generateString()
-public FiniteAutomaton toFiniteAutomaton()
-public class FiniteAutomaton
-{
-public FiniteAutomaton(constructor params...)
-public boolean stringBelongToLanguage(final String inputString)
-}
-```
-Variant 3:
-```
-VN={S, D, R},
-VT={a, b, c, d, f},
-P={
-S → aS
-S → bD
-S → fR
-D → cD
-D → dR
-R → bR
-R → f
-D → d
-}'''
+- Start parsing full expression
+- Parsing sequence
+- Parsing term: 'O'
+- Parsing group: '(P|Q|R)'
+- AlternationNode: selecting first alternative 'P'
+- RepetitionNode: repeating 'P' 2 times
+- Parsing literal '2'
+- Parsing alternation '(3|4)'
+- AlternationNode: selecting first alternative '3'
+- Generated string: 'OPP23'
 ```
 
-### Code:
-```
-import random
-class Grammar:
-    def __init__(self):
-        self.Vn = ['S', 'D', 'R']
-        self.Vt = ['a', 'b', 'c', 'd', 'f']  # Terminal symbols
-        self.P = {
-            'S': ['aS', 'bD', 'fR'],
-            'D': ['cD', 'dR', 'd'],
-            'R': ['bR', 'f']}
-        self.start = 'S'
+## 8. Conclusion
+This project successfully implemented a **dynamic regex interpreter and generator** that:
+- Parses regex expressions into an AST.
+- Generates valid output strings following the rules.
+- Provides a step-by-step log for debugging and analysis.
+- Handles common regex constructs including alternations, sequences, and quantifiers.
 
-    def generateString(self):
-        current = self.start
-        result = []
-        while current in self.Vn:
-            production = random.choice(self.P[current]) ## without random production = self.P[current_symbol][0]
-            result.append(production)
-            current = production[-1]
-        return ''.join(result)
+The system can be further improved by adding support for character ranges (`[A-Z]`), escaping mechanisms, and extended regex features.
 
-
-
-    def toFiniteAutomaton(self):
-            return FiniteAutomaton(self.P, self.start)
-
-
-class FiniteAutomaton:
-    def __init__(self, transitions, start):
-        self.transitions = transitions
-        self.start = start
-
-    def stringBelongToLanguage(self, input_string):
-        current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-        return True
-
-
-grammar = Grammar()
-print("Generated strings:")
-for _ in range(5):
-    print(grammar.generateString())
-
-fa = grammar.toFiniteAutomaton()
-print("\nFinite Automaton string checks:")
-
-text = 'abc'
-print(fa.stringBelongToLanguage(text))
-
-```
-
-
-## Main logic of implementation: 
-### production = random.choice(self.P[current]) it chooses randomly symbol from dictionary.values() (first is S (aka start))
-### it takes the last word from prodcution (current = production[-1])
-### example of output (Generated strings:
-aSfRf
-fRf
-aSaSaSfRf
-bDcDcDdRbRf
-bDd)
-### with string_verification we check if the transition matches the current character and after updait current, and check again.
-```
-current = self.start
-        for char in input_string:
-            found_transition = False
-            for transition in self.transitions.get(current, []):
-                if transition[0] == char:
-                    current = transition[1]
-                    found_transition = True
-                    break
-            if not found_transition:
-                return False
-```
-
-
-### Consclusion 
-After implementing this labaratory work i learned how to define grammar in programming language, how to iterate through it to generate a string, how to verify if it's a Finite automata and how to verify if string belong to the language. Key point from work is that the start state is used as the initial reference point and does not change during the execution of the automaton. The current state is updated based on the transitions, but the start state remains unchanged. And also if any character does not have a valid transition, then it doesn't belong to our defined language.
+---
 
