@@ -72,3 +72,59 @@ Y1 → X_a A \
 Y2 → Y1 X_d \
 Y3 → Y2 A \
 
+## Code Snippets
+
+##  Define a Grammar
+
+Create a grammar using non-terminals (`VN`), terminals (`VT`), production rules (`P`), and a start symbol (`S`):
+
+```python
+VN = {'S', 'A', 'B', 'C', 'E'}
+VT = {'a', 'd'}
+P = {
+    'S': [['d', 'B'], ['A']],
+    'A': [['d'], ['d', 'S'], ['a', 'A', 'd', 'A', 'B']],
+    'B': [['a', 'C'], ['a', 'S'], ['A', 'C']],
+    'C': [['e']],
+    'E': [['A', 'S']]
+}
+S = 'S'
+```
+
+## Elimenate epsilon
+grammar.eliminate_epsilon()
+
+```
+nullable = set()
+for var in self.VN:
+    for prod in self.P.get(var, []):
+        if prod == ['e']:
+            nullable.add(var)
+```
+
+
+## Eliminate unit productions
+grammar.eliminate_unit()
+```
+for A in units:
+    for B in list(units[A]):
+        for C in units.get(B, []):
+            units[A].add(C)
+```
+
+## Elimenate inaccessible symbols:
+```
+accessible = set([self.S])
+queue = deque([self.S])
+while queue:
+    current = queue.popleft()
+    for prod in self.P.get(current, []):
+        for sym in prod:
+            if sym in self.VN and sym not in accessible:
+                accessible.add(sym)
+                queue.append(sym)
+```
+This Python script offers an efficient and modular way to convert a context-free grammar (CFG) into Chomsky Normal Form (CNF). By handling common grammar transformations — including epsilon elimination, unit production removal, and the removal of inaccessible or non-productive symbols — it prepares CFGs for use in parsing algorithms, such as CYK parsing. Whether you're exploring formal language theory or working on compiler design, this tool streamlines the grammar simplification process. Feel free to contribute, improve, or adapt it for your needs, and enjoy the power of CNF in your projects and research!
+
+
+
